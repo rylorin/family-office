@@ -1,0 +1,364 @@
+{
+  "name": "Send Message",
+  "nodes": [
+    {
+      "parameters": {
+        "chatId": "={{ $('Switch').item.json.sessionId }}",
+        "text": "={{ $json.telegramText }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "MarkdownV2"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        96,
+        16
+      ],
+      "id": "f1b7faa0-68c2-4569-a41c-c9fd079bf01e",
+      "name": "Send a text message",
+      "webhookId": "8f66c863-2aec-4301-b6f4-d999bb5add8b",
+      "credentials": {
+        "telegramApi": {
+          "id": "P24vC78CqEtXxfwi",
+          "name": "Telegram account fo manager"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.channel }}",
+                    "rightValue": "telegram",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "fa807aec-1f83-460d-b8a4-27aac1a28eed"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "telegram"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "65f79c2a-e9e0-4247-b31a-545df188a817",
+                    "leftValue": "={{ $json.channel }}",
+                    "rightValue": "slack",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "slack"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -336,
+        272
+      ],
+      "id": "11dcdd3b-59af-4da7-8f77-561dfb5658f3",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "message": "={{ $('Family Office Manager').item.json.output }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1.2,
+      "position": [
+        336,
+        480
+      ],
+      "id": "a2e6fd58-f757-4810-a3c3-1e02c3280311",
+      "name": "Chat",
+      "webhookId": "916d49d9-924c-488a-a145-de29e8816d0e"
+    },
+    {
+      "parameters": {
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "value": "={{ $('Rename Keys').item.json.from }}",
+          "mode": "id"
+        },
+        "text": "={{ $json.output }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        336,
+        288
+      ],
+      "id": "14d70940-cf77-447b-9768-2ae283acff8f",
+      "name": "Send a message",
+      "webhookId": "44fb21c8-3a97-4210-ae70-aeed33d4949c",
+      "credentials": {
+        "slackApi": {
+          "id": "ii3JkLACMVd1Fyii",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const maxLength = 4000; // Marge de sécurité sous les 4096\n\n/**\n * Échappe les caractères spéciaux pour Telegram MarkdownV2\n * @param {string} text - Le texte brut issu du LLM\n * @returns {string} - Le texte prêt pour l'envoi\n */\nfunction escapeMarkdownV2(text) {\n  // On sépare le texte pour ne pas toucher au contenu des blocs de code\n  // Cette regex capture les blocs de code et le texte entre eux\n  const parts = text.split(/(```[\\s\\S]*?```)/g);\n\n  return parts.map(part => {\n    // Si c'est un bloc de code, on le laisse tel quel\n    if (part.startsWith('```')) {\n      return part;\n    }\n\n    return part\n      .replace(/\\*\\*/g, \"*\") // Remplacer le formatage `**bold**` par `*bold*`.\n      .replace(/([_\\[\\]()~`>#+\\-=|{}.!])/g, '\\\\$1'); // Sinon, on échappe les caractères réservés par Telegram : _ * [ ] ( ) ~ ` > # + - = | { } . !\n  }).join('');\n}\n\n/**\n * Découpe un texte pour Telegram en respectant la limite de caractères\n * et en préservant les blocs de code et le formatage Markdown.\n *\n * @param {string} text - Le texte à découper (déjà échappé idéalement)\n * @param {number} maxLength - La limite (4000 est sûr pour garder une marge vs 4096)\n * @returns {string[]} - Un tableau contenant les différents messages à envoyer\n */\nfunction splitTelegramMessage(text, maxLength = 4000) {\n  const messages = [];\n  let currentMessage = '';\n  let insideCodeBlock = false;\n\n  // On découpe le texte ligne par ligne\n  const lines = text.split('\\n');\n\n  for (let line of lines) {\n    // On détecte si la ligne ouvre ou ferme un bloc de code\n    if (line.trim().startsWith('```')) {\n      insideCodeBlock = !insideCodeBlock;\n    }\n\n    // Si l'ajout de cette ligne dépasse la limite autorisée (+1 pour le \\n)\n    if (currentMessage.length + line.length + 1 > maxLength) {\n      \n      if (insideCodeBlock) {\n        // On force la fermeture du code pour ce message\n        currentMessage += '\\n```';\n        messages.push(currentMessage);\n        // On démarre le nouveau message en rouvrant le bloc de code\n        currentMessage = '```\\n' + line;\n      } else {\n        // Coupure classique entre deux paragraphes/lignes\n        messages.push(currentMessage);\n        currentMessage = line;\n      }\n      \n    } else {\n      // On ajoute la ligne au message courant\n      currentMessage = currentMessage ? currentMessage + '\\n' + line : line;\n    }\n  }\n\n  // On n'oublie pas d'ajouter le dernier bloc restant\n  if (currentMessage.length > 0) {\n    messages.push(currentMessage);\n  }\n\n  return messages;\n}\n\n// 1. Récupération du texte généré par le LLM depuis l'item courant.\n// (Remplace 'text' par le nom exact du champ en entrée si différent)\nconst llmResponse = $input.first().json.message || \"Pas de réponse, quelque chose a dû mal se passer :(\";\n\n// 2. Traitement du texte\nconst safeText = escapeMarkdownV2(llmResponse);\nconst messagesToSend = splitTelegramMessage(safeText, maxLength);\n\n// 3. Conversion au format N8nOutputItem\n// Cela va générer un item distinct par message dans n8n\nreturn messagesToSend.map((msg, index) => {\n  return {\n    json: {\n      // Le texte prêt à être envoyé par le nœud Telegram\n      telegramText: msg,\n      // Informations utiles si tu veux gérer l'ordre ou ajouter un délai\n      partNumber: index + 1,\n      totalParts: messagesToSend.length\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -112,
+        16
+      ],
+      "id": "9b8fc101-792f-4446-9e52-ecee7535b506",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "channel"
+            },
+            {
+              "name": "sessionId"
+            },
+            {
+              "name": "message"
+            },
+            {
+              "name": "mode"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -560,
+        288
+      ],
+      "id": "8a2b37f7-6160-4389-ba23-4b3cf0a8c8a3",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c00dd181-09a6-4789-ae5a-573f97fc5189",
+              "name": "app",
+              "value": "={{ $('Switch').item.json.channel }}",
+              "type": "string"
+            },
+            {
+              "id": "6f0c0963-f5a8-4d19-9e15-b43a99e3ccee",
+              "name": "sessionId",
+              "value": "={{ $('Switch').item.json.sessionId }}",
+              "type": "string"
+            },
+            {
+              "id": "6ba505ce-2a64-41ed-b5c3-c5af3550e449",
+              "name": "message",
+              "value": "={{ $('Switch').item.json.message }}",
+              "type": "string"
+            },
+            {
+              "id": "2e3a62c2-dfc7-4077-9d08-3a0fdac0165d",
+              "name": "channel",
+              "value": "={{ $('Switch').item.json.channel }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        560,
+        0
+      ],
+      "id": "3def0135-be7e-4ff5-b4db-397df80ec4ac",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Switch').item.json.sessionId }}",
+        "text": "=Impossible de transmettre la réponse :\n{{ $json.error }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        336,
+        128
+      ],
+      "id": "63711e3f-228c-4930-98b1-58f09a7cd6a3",
+      "name": "Send a text message1",
+      "webhookId": "8f66c863-2aec-4301-b6f4-d999bb5add8b",
+      "credentials": {
+        "telegramApi": {
+          "id": "P24vC78CqEtXxfwi",
+          "name": "Telegram account fo manager"
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 20,
+    "errorWorkflow": "5V46L7csAX91UXTG"
+  },
+  "versionId": "168f6f0a-4b31-4dd3-9f68-d69ad18e517b",
+  "meta": {
+    "instanceId": "75335dac70fa104cdfa4e5bcad8ca1a7f24e416f2c27d9320d1d92c6508398a5"
+  },
+  "id": "adZfi8AJiWVXwWw4",
+  "tags": []
+}

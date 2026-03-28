@@ -1,0 +1,235 @@
+{
+  "name": "Send Bilan",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "sendDocument",
+        "chatId": "={{ $json.sessionId }}",
+        "binaryData": true,
+        "additionalFields": {
+          "caption": "=https://drive.google.com/file/d/{{ $json.fileId }}/view?usp=share_link"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [64, -96],
+      "id": "d00257c5-ca7b-43b3-834b-a469558acd28",
+      "name": "Send a document",
+      "webhookId": "29109428-1f03-4b1a-b0e9-18db4013a1cd",
+      "credentials": {
+        "telegramApi": {
+          "id": "P24vC78CqEtXxfwi",
+          "name": "Telegram account fo manager"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.channel }}",
+                    "rightValue": "telegram",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "ec81b734-11b2-4a76-a60f-a161bb99f6c1"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Telegram"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [-352, 0],
+      "id": "94215c40-89e5-4841-8117-79cd8f31ddf1",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "channel"
+            },
+            {
+              "name": "sessionId"
+            },
+            {
+              "name": "mode"
+            },
+            {
+              "name": "fileId"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [-560, 0],
+      "id": "58bdccc2-a4dd-4fe2-a753-581a48acd4c3",
+      "name": "Start"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [480, 16],
+      "id": "4390c916-dd44-4557-bc30-c3c0ee750cf8",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.fileId }}",
+          "mode": "id"
+        },
+        "options": {
+          "binaryPropertyName": "data"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [-144, -96],
+      "id": "95fb29b9-033b-4b3e-9803-0194baa4fab3",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "4YnA7yrrAHy91dF0",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "07a6b092-d88f-41c1-aaff-9a3361252db8",
+              "name": "message",
+              "value": "👆 Votre bilan patrimonial complet",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [272, -96],
+      "id": "d80c4bda-b2fb-4a6c-bbb9-d997b586d7b8",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {
+    "Start": [
+      {
+        "json": {
+          "channel": "telegram",
+          "sessionId": "675075831",
+          "mode": "text"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a document": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Send a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "5V46L7csAX91UXTG",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "d69bfd94-a11e-4a8e-bdb8-db0011f2e389",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "75335dac70fa104cdfa4e5bcad8ca1a7f24e416f2c27d9320d1d92c6508398a5"
+  },
+  "id": "cT5mlKCNGeaRoeif",
+  "tags": []
+}
