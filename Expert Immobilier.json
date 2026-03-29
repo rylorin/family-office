@@ -41,7 +41,7 @@
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
       "position": [
-        496,
+        448,
         384
       ],
       "id": "cbec6824-cf72-410a-a7f4-6787d8d566d8",
@@ -139,7 +139,7 @@
     "executionTimeout": 300,
     "errorWorkflow": "5V46L7csAX91UXTG"
   },
-  "versionId": "f0ea246d-3e8a-4cfd-8aea-0e964d18a830",
+  "versionId": "c7791cb5-0f47-47c2-9f9e-ae3fd621d3bd",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "75335dac70fa104cdfa4e5bcad8ca1a7f24e416f2c27d9320d1d92c6508398a5"

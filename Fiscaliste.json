@@ -58,7 +58,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
       "typeVersion": 1,
       "position": [
-        256,
+        384,
         384
       ],
       "id": "739fe2ea-9bd8-4099-90de-a8da161d1601",
@@ -139,7 +139,7 @@
     "executionTimeout": 300,
     "errorWorkflow": "5V46L7csAX91UXTG"
   },
-  "versionId": "0630fa83-a7c0-405b-8933-4ea70cf68bfa",
+  "versionId": "cf778443-5f56-4299-8c63-4f5810a8f024",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "75335dac70fa104cdfa4e5bcad8ca1a7f24e416f2c27d9320d1d92c6508398a5"

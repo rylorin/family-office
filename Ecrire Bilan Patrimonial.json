@@ -6,9 +6,6 @@
         "workflowInputs": {
           "values": [
             {
-              "name": "file_id"
-            },
-            {
               "name": "query"
             },
             {
@@ -35,7 +32,7 @@
     {
       "parameters": {
         "method": "PATCH",
-        "url": "=https://www.googleapis.com/upload/drive/v3/files/{{ $json.file_id }}?uploadType=media",
+        "url": "=https://www.googleapis.com/upload/drive/v3/files/{{ $json.fileId }}?uploadType=media",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "googleDriveOAuth2Api",
         "sendBody": true,
@@ -52,7 +49,7 @@
       ],
       "id": "27f2c483-03c9-4534-bd8a-aca16d3341d7",
       "name": "HTTP Request",
-      "alwaysOutputData": true,
+      "alwaysOutputData": false,
       "executeOnce": false,
       "credentials": {
         "googleDriveOAuth2Api": {
@@ -71,6 +68,12 @@
               "name": "message",
               "value": "={{ $('If').item.json.message }}",
               "type": "string"
+            },
+            {
+              "id": "b9af4b23-bde6-4a83-8009-8f117aa21bab",
+              "name": "success",
+              "value": "=true",
+              "type": "boolean"
             }
           ]
         },
@@ -114,7 +117,7 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const item = $('Start').item;\nconst previous = $('Lire Bilan Patrimonial').item.json.data;\nconst updated = $json.choices[0].message.content;\nconst now = $('Prepare Query').item.json.now;\n\n// On découpe par expression régulière pour gérer tous les types de sauts de ligne\n// .filter(line => line.trim() !== \"\") est optionnel : \n// gardez-le si vous voulez ignorer les lignes vides.\nconst lineCountPrevious = previous.split(/\\r\\n|\\r|\\n/).length;\nconst lineCountUpdated = updated.split(/\\r\\n|\\r|\\n/).length;\nconst delta = (lineCountUpdated - lineCountPrevious);\nconst success = delta > -3;\nconst message = success ? `✅ Bilan sauvegardé le ${now} - ${lineCountUpdated} lines` :  `❌ Erreur de construction du bilan consolidé ! (${delta} lines)`;\n\nreturn {\n  \"message\": message,\n  \"sessionId\": item.json.sessionId|| \"-5292505168\",\n  \"channel\": item.json.channel || \"telegram\",\n  \"mode\": item.json.mode || \"text\",\n  \"app\": item.json.channel || \"telegram\",\n  \"data\": updated,\n  \"success\": success,\n  \"file_id\": item.json.file_id\n};"
+        "jsCode": "const start = $('Start').item;\nconst previous = $('Lire Bilan Patrimonial').item.json.data;\nconst updated = $json.choices[0].message.content;\nconst now = $('Prepare Query').item.json.now;\n\n// On découpe par expression régulière pour gérer tous les types de sauts de ligne\n// .filter(line => line.trim() !== \"\") est optionnel : \n// gardez-le si vous voulez ignorer les lignes vides.\nconst lineCountPrevious = previous.split(/\\r\\n|\\r|\\n/).length;\nconst lineCountUpdated = updated.split(/\\r\\n|\\r|\\n/).length;\nconst delta = (lineCountUpdated - lineCountPrevious);\nconst success = delta > -3;\nconst message = success ? `✅ Bilan sauvegardé le ${now} - ${lineCountUpdated} lines` :  `❌ Erreur de construction du bilan consolidé ! (${delta} lines)`;\n\nreturn {\n  \"message\": message,\n  \"sessionId\": start.json.sessionId,\n  \"channel\": start.json.channel || \"telegram\",\n  \"mode\": start.json.mode || \"text\",\n  \"data\": updated,\n  \"success\": success,\n  \"fileId\": $('Lire Bilan Patrimonial').item.json.fileId\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -148,37 +151,15 @@
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
-            "file_id": "={{ $json.file_id }}",
             "sessionId": "={{ $json.sessionId }}",
-            "app": "={{ $json.channel }}",
             "channel": "={{ $json.channel }}",
             "mode": "={{ $json.mode }}"
           },
           "matchingColumns": [],
           "schema": [
             {
-              "id": "file_id",
-              "displayName": "file_id",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            },
-            {
               "id": "sessionId",
               "displayName": "sessionId",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            },
-            {
-              "id": "app",
-              "displayName": "app",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -337,6 +318,12 @@
               "name": "message",
               "value": "❌ Erreur de sauvegarde du bilan consolidé !",
               "type": "string"
+            },
+            {
+              "id": "faed0ba0-2b79-4932-b58e-2fa7137dea7f",
+              "name": "success",
+              "value": false,
+              "type": "boolean"
             }
           ]
         },
@@ -471,7 +458,6 @@
     "Start": [
       {
         "json": {
-          "file_id": "1t_VuccZ3EMcbtM-yKHESGD4Gq0ouKcmL",
           "query": "Adapte le bilan actuel au format proposé par le template",
           "sessionId": "675075831",
           "channel": "telegram",
@@ -627,7 +613,7 @@
     "executionTimeout": 60,
     "errorWorkflow": "5V46L7csAX91UXTG"
   },
-  "versionId": "778780b1-b68b-4bf1-8ada-6e2a5239306e",
+  "versionId": "b7f4f2b1-4880-4818-a64f-d56d339eac0b",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "75335dac70fa104cdfa4e5bcad8ca1a7f24e416f2c27d9320d1d92c6508398a5"

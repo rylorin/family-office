@@ -151,40 +151,12 @@
     },
     {
       "parameters": {
-        "workflowInputs": {
-          "values": [
-            {
-              "name": "channel"
-            },
-            {
-              "name": "sessionId"
-            },
-            {
-              "name": "message"
-            },
-            {
-              "name": "mode"
-            }
-          ]
-        }
-      },
-      "type": "n8n-nodes-base.executeWorkflowTrigger",
-      "typeVersion": 1.1,
-      "position": [
-        -560,
-        288
-      ],
-      "id": "8a2b37f7-6160-4389-ba23-4b3cf0a8c8a3",
-      "name": "When Executed by Another Workflow"
-    },
-    {
-      "parameters": {
         "assignments": {
           "assignments": [
             {
               "id": "c00dd181-09a6-4789-ae5a-573f97fc5189",
-              "name": "app",
-              "value": "={{ $('Switch').item.json.channel }}",
+              "name": "mode",
+              "value": "={{ $('Switch').item.json.mode }}",
               "type": "string"
             },
             {
@@ -242,6 +214,34 @@
         }
       },
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "channel"
+            },
+            {
+              "name": "sessionId"
+            },
+            {
+              "name": "message"
+            },
+            {
+              "name": "mode"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -560,
+        288
+      ],
+      "id": "8a2b37f7-6160-4389-ba23-4b3cf0a8c8a3",
+      "name": "Start"
     }
   ],
   "pinData": {},
@@ -322,22 +322,22 @@
         ]
       ]
     },
-    "When Executed by Another Workflow": {
+    "Send a text message1": {
       "main": [
         [
           {
-            "node": "Switch",
+            "node": "Edit Fields",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Send a text message1": {
+    "Start": {
       "main": [
         [
           {
-            "node": "Edit Fields",
+            "node": "Switch",
             "type": "main",
             "index": 0
           }
@@ -355,7 +355,7 @@
     "executionTimeout": 20,
     "errorWorkflow": "5V46L7csAX91UXTG"
   },
-  "versionId": "168f6f0a-4b31-4dd3-9f68-d69ad18e517b",
+  "versionId": "f664a955-0625-4fe6-8af9-ff9776bbf573",
   "meta": {
     "instanceId": "75335dac70fa104cdfa4e5bcad8ca1a7f24e416f2c27d9320d1d92c6508398a5"
   },

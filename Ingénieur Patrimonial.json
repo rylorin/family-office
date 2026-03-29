@@ -6,16 +6,10 @@
         "workflowInputs": {
           "values": [
             {
-              "name": "session_id"
+              "name": "sessionId"
             },
             {
               "name": "query"
-            },
-            {
-              "name": "file_id"
-            },
-            {
-              "name": "app"
             },
             {
               "name": "mode"
@@ -38,7 +32,7 @@
     {
       "parameters": {
         "sessionIdType": "customKey",
-        "sessionKey": "={{ $json.session_id }}",
+        "sessionKey": "={{ $json.sessionId }}",
         "contextWindowLength": 15
       },
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
@@ -63,24 +57,14 @@
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
-            "file_id": "={{ $json.file_id }}",
-            "sessionId": "={{ $json.session_id }}",
-            "app": "={{ $json.channel }}"
+            "sessionId": "={{ $json.sessionId }}",
+            "mode": "={{ $json.mode }}",
+            "channel": "={{ $json.channel }}"
           },
           "matchingColumns": [
             "file_id"
           ],
           "schema": [
-            {
-              "id": "file_id",
-              "displayName": "file_id",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            },
             {
               "id": "sessionId",
               "displayName": "sessionId",
@@ -92,8 +76,18 @@
               "removed": false
             },
             {
-              "id": "app",
-              "displayName": "app",
+              "id": "mode",
+              "displayName": "mode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "channel",
+              "displayName": "channel",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -128,24 +122,13 @@
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
-            "file_id": "={{ $json.file_id }}",
             "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', `Modifications du bilan patrimonial au format markdown`, 'string') }}",
             "mode": "={{ $json.mode }}",
             "channel": "={{ $json.channel }}",
-            "sessionId": "={{ $json.session_id }}"
+            "sessionId": "={{ $json.sessionId }}"
           },
           "matchingColumns": [],
           "schema": [
-            {
-              "id": "file_id",
-              "displayName": "file_id",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            },
             {
               "id": "query",
               "displayName": "query",
@@ -335,7 +318,7 @@
     "executionTimeout": 300,
     "errorWorkflow": "5V46L7csAX91UXTG"
   },
-  "versionId": "b322f866-e243-4b4b-9bb2-9fbc9ecb54af",
+  "versionId": "8b366682-2fb9-4206-8a4c-2cbcadfcd01f",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "75335dac70fa104cdfa4e5bcad8ca1a7f24e416f2c27d9320d1d92c6508398a5"

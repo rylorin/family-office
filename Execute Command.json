@@ -25,7 +25,10 @@
       },
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
-      "position": [-416, -16],
+      "position": [
+        -416,
+        0
+      ],
       "id": "28c5fb9b-ea59-4f12-bda1-1628ad549659",
       "name": "Start"
     },
@@ -56,6 +59,31 @@
               },
               "renameOutput": true,
               "outputKey": "Download"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "0b038af5-832a-415d-b114-be851a308150",
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "/start",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Ignore"
             }
           ]
         },
@@ -65,7 +93,10 @@
       },
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
-      "position": [-208, -16],
+      "position": [
+        -208,
+        -16
+      ],
       "id": "400fa49e-3f29-4eba-b1d0-72be2319b4a9",
       "name": "Switch"
     },
@@ -73,7 +104,10 @@
       "parameters": {},
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
-      "position": [208, -16],
+      "position": [
+        208,
+        0
+      ],
       "id": "05dbc32a-6583-4321-963c-21a3b4b55572",
       "name": "No Operation, do nothing"
     },
@@ -144,7 +178,10 @@
       },
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
-      "position": [0, -80],
+      "position": [
+        0,
+        -80
+      ],
       "id": "a0c5a918-456f-4ed6-afd4-40cacacb28dd",
       "name": "Call 'Send Bilan'"
     },
@@ -212,22 +249,15 @@
       },
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
-      "position": [0, 80],
+      "position": [
+        0,
+        80
+      ],
       "id": "8af9c379-0915-46b2-8619-b22fc1966b17",
       "name": "Call 'Send Message'"
     }
   ],
-  "pinData": {
-    "Start": [
-      {
-        "json": {
-          "channel": "telegram",
-          "mode": "text",
-          "command": "/download bilan"
-        }
-      }
-    ]
-  },
+  "pinData": {},
   "connections": {
     "Start": {
       "main": [
@@ -245,6 +275,13 @@
         [
           {
             "node": "Call 'Send Bilan'",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
             "type": "main",
             "index": 0
           }
@@ -290,7 +327,7 @@
     "callerPolicy": "workflowsFromSameOwner",
     "availableInMCP": false
   },
-  "versionId": "2592cfd0-e433-4ff9-a151-70d3caf77dc1",
+  "versionId": "5dc3a564-81b9-41bd-8d18-305180f0fd72",
   "meta": {
     "instanceId": "75335dac70fa104cdfa4e5bcad8ca1a7f24e416f2c27d9320d1d92c6508398a5"
   },
