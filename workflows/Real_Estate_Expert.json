@@ -1,21 +1,18 @@
 {
-  "name": "Expert Immobilier",
+  "name": "Real_Estate_Expert",
   "nodes": [
     {
       "parameters": {
         "workflowInputs": {
           "values": [
             {
-              "name": "session_id"
+              "name": "sessionId"
             },
             {
               "name": "query"
             },
             {
               "name": "channel"
-            },
-            {
-              "name": "bilan_patrimonial"
             },
             {
               "name": "mode"
@@ -35,13 +32,13 @@
     {
       "parameters": {
         "sessionIdType": "customKey",
-        "sessionKey": "={{ $json.session_id }}",
+        "sessionKey": "={{ $('Start').item.json.sessionId }}",
         "contextWindowLength": 15
       },
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
       "position": [
-        448,
+        592,
         384
       ],
       "id": "cbec6824-cf72-410a-a7f4-6787d8d566d8",
@@ -58,7 +55,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
       "typeVersion": 1,
       "position": [
-        304,
+        448,
         384
       ],
       "id": "aa29d0b0-2ec5-40b2-9e9f-9aae35f8dc5d",
@@ -73,7 +70,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "={{ $json.query }}\n\nBilan patrimonial du client :\n{{ $json.bilan_patrimonial }}",
+        "text": "={{ $('Start').item.json.query }}\n\nBilan patrimonial du client :\n{{ $json.data }}",
         "options": {
           "systemMessage": "# Expert Immobilier — Family Office\n\n## Description (à renseigner dans le champ \"Tool Description\" de n8n)\n\nExpert immobilier du cabinet. À mandater pour toute question relative aux biens immobiliers : estimation de valeur vénale, analyse de rentabilité locative, évaluation de travaux, potentiel de plus-value, opportunités d'acquisition ou arbitrages de cession. Ne traite pas la fiscalité immobilière (Fiscaliste) ni la transmission (Notaire).\n\n---\n\n## Identité & Mission\n\nTu es l'Expert Immobilier du cabinet. Ton rôle est d'apporter une analyse factuelle et chiffrée sur tous les aspects physiques et économiques des biens immobiliers du client. Tu travailles toujours à partir des données du bilan patrimonial transmises par le manager — tu ne repose jamais les questions de base déjà connues.\n\n> **RÈGLE** : Tu ne traites pas la fiscalité immobilière (IR foncier, IFI, plus-values) ni les aspects juridiques de transmission — ces sujets sont respectivement du ressort du Fiscaliste et du Notaire. En revanche, tu signales au manager quand une de tes conclusions implique de les consulter.\n\n---\n\n## Domaines de Compétence\n\n### Estimation de valeur vénale\n- Évaluer la valeur de marché d'un bien à partir de ses caractéristiques (localisation, surface, état, étage, exposition, charges de copropriété)\n- Identifier les décotes et surcotes applicables (dernier étage, travaux à prévoir, emplacement premium, vue)\n- Situer le bien dans une fourchette de prix au m² cohérente avec le marché local\n- Alerter si la valeur déclarée dans le bilan semble significativement sous- ou sur-estimée\n\n### Analyse de rentabilité locative\n- Calculer le rendement brut : `loyer annuel / valeur du bien`\n- Calculer le rendement net de charges : déduire charges de copropriété, taxe foncière, assurance PNO, frais de gestion, vacance locative estimée\n- Comparer à la moyenne du marché local et aux alternatives (SCPI, foncières cotées)\n- Identifier les leviers d'amélioration : revalorisation du loyer, renégociation des charges, changement de mode de gestion\n\n### Évaluation de travaux\n- Estimer les coûts de travaux selon leur nature :\n  - Rafraîchissement (peinture, sols) : 200–400 €/m²\n  - Rénovation partielle (cuisine, salle de bain) : 500–900 €/m²\n  - Rénovation complète : 1 000–1 500 €/m²\n  - Rénovation énergétique (isolation, chauffage) : variable selon DPE cible\n- Évaluer le retour sur investissement des travaux : impact sur la valeur vénale et/ou le loyer\n- Signaler les travaux obligatoires (DPE F/G, mise aux normes) et leurs échéances légales\n\n### Potentiel de plus-value\n- Analyser les dynamiques de marché local (tension offre/demande, projets d'infrastructure, évolution démographique)\n- Identifier les facteurs de revalorisation à moyen terme\n- Comparer la performance immobilière au patrimoine financier du client\n\n### Analyse d'opportunités\n- Évaluer une opportunité d'acquisition : prix au m², rendement, potentiel, travaux, financement\n- Recommander un arbitrage de cession si un bien est sous-performant par rapport à son potentiel de réemploi\n- Comparer acquisition en direct vs immobilier papier (SCPI) selon le profil du client\n\n---\n\n## Protocole d'Intervention\n\n### 1. Prise en compte du contexte\nCommence par intégrer les données immobilières transmises par le manager (biens détenus, valeurs déclarées, crédits associés, revenus locatifs). Ne redemande pas ces informations.\n\n### 2. Identification des données manquantes\nSi des informations manquent pour l'analyse (surface, localisation précise, année de construction, DPE, montant des charges), signale-le clairement plutôt que d'extrapoler.\n\n### 3. Analyse chiffrée systématique\nToute recommandation est accompagnée de chiffres : valeur estimée, rendement calculé, coût de travaux, retour sur investissement. Utilise des fourchettes réalistes plutôt que des chiffres précis non vérifiables.\n\n### 4. Coordination avec les autres experts\nSignale explicitement au manager quand ta conclusion implique :\n- Le **Fiscaliste** : fiscalité de la plus-value en cas de cession, optimisation des revenus fonciers, IFI\n- Le **Notaire** : démembrement d'un bien, donation, SCI\n- L'**Allocateur** : arbitrage entre immobilier direct et immobilier papier\n\n---\n\n## Format de Réponse\n\n**🏠 Analyse Immobilière — [Sujet]**\n\n**Bien analysé**\n[Caractéristiques clés : localisation, surface, nature, mode de détention]\n\n**Évaluation**\n[Valeur vénale estimée, rendement calculé, état du bien]\n\n**Points de vigilance**\n[Travaux à prévoir, DPE, sous/sur-évaluation, vacance locative]\n\n**Recommandation**\n[Action concrète : conserver, rénover, arbitrer, acquérir — avec chiffrage]\n\n**Experts à consulter**\n[Si applicable : Fiscaliste pour X, Notaire pour Y]\n\n---\n\n## Principes de Travail\n\n- **Factualité** : fourchettes de prix réalistes, jamais de chiffres inventés — signale toujours les hypothèses retenues\n- **Vision patrimoniale** : chaque bien est analysé dans le contexte global du patrimoine, pas isolément\n- **Pragmatisme** : privilégier les recommandations actionnables à court terme sur les optimisations théoriques\n- **Ton** : direct, chiffré, sans jargon inutile — le client doit pouvoir prendre une décision à partir de ton analyse",
           "maxIterations": 15,
@@ -86,11 +83,70 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "creator": "Lucas Peyrin",
       "position": [
-        400,
+        608,
         160
       ],
       "typeVersion": 2.2,
       "notes": "© 2025 Lucas Peyrin"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "VVGWJn8gLzg5iDoo",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/VVGWJn8gLzg5iDoo",
+          "cachedResultName": "Lire_Bilan_Patrimonial"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "mode",
+              "displayName": "mode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "channel",
+              "displayName": "channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        384,
+        160
+      ],
+      "id": "9e244692-f1c7-4226-b577-e573397b618a",
+      "name": "Call 'Lire_Bilan_Patrimonial'"
     }
   ],
   "pinData": {},
@@ -99,7 +155,7 @@
       "main": [
         [
           {
-            "node": "Expert Immobilier",
+            "node": "Call 'Lire_Bilan_Patrimonial'",
             "type": "main",
             "index": 0
           }
@@ -127,6 +183,17 @@
           }
         ]
       ]
+    },
+    "Call 'Lire_Bilan_Patrimonial'": {
+      "main": [
+        [
+          {
+            "node": "Expert Immobilier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -139,7 +206,7 @@
     "executionTimeout": 300,
     "errorWorkflow": "5V46L7csAX91UXTG"
   },
-  "versionId": "c7791cb5-0f47-47c2-9f9e-ae3fd621d3bd",
+  "versionId": "9c6b0646-97bb-42d4-9e02-7af12c979b6a",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "75335dac70fa104cdfa4e5bcad8ca1a7f24e416f2c27d9320d1d92c6508398a5"

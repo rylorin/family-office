@@ -97,22 +97,21 @@
           "value": "Wr9ofJmDyqSCufi0",
           "mode": "list",
           "cachedResultUrl": "/workflow/Wr9ofJmDyqSCufi0",
-          "cachedResultName": "Expert Immobilier"
+          "cachedResultName": "Real_Estate_Expert"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
-            "session_id": "={{ $('Start').item.json.sessionId }}",
             "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}",
             "channel": "={{ $('Start').item.json.channel }}",
             "mode": "={{ $('Start').item.json.mode }}",
-            "bilan_patrimonial": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('bilan_patrimonial', `Contenu complet du bilan patrimonial au format markdown. \nTransmettre l'intégralité du bilan, pas uniquement un résumé.`, 'string') }}"
+            "sessionId": "={{ $('Start').item.json.sessionId }}"
           },
           "matchingColumns": [],
           "schema": [
             {
-              "id": "session_id",
-              "displayName": "session_id",
+              "id": "sessionId",
+              "displayName": "sessionId",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -141,16 +140,6 @@
               "removed": false
             },
             {
-              "id": "bilan_patrimonial",
-              "displayName": "bilan_patrimonial",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            },
-            {
               "id": "mode",
               "displayName": "mode",
               "required": false,
@@ -168,7 +157,7 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        3456,
+        3440,
         432
       ],
       "id": "dd513541-3aa5-4a41-87a0-5bff3fddacea",
@@ -403,7 +392,7 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        3328,
+        3312,
         432
       ],
       "id": "4c3aca5b-2c87-449d-96d4-de3690e3a7e1",
@@ -932,7 +921,7 @@
     "callerPolicy": "workflowsFromSameOwner",
     "executionTimeout": 600
   },
-  "versionId": "1f6a20da-56dc-4586-8044-ed6c5c16901d",
+  "versionId": "3ede605b-4811-4f73-aa1b-0662378d43c9",
   "meta": {
     "instanceId": "75335dac70fa104cdfa4e5bcad8ca1a7f24e416f2c27d9320d1d92c6508398a5"
   },
