@@ -1,5 +1,5 @@
 {
-  "name": "Execute Command",
+  "name": "Execute_Command",
   "nodes": [
     {
       "parameters": {
@@ -15,10 +15,7 @@
               "name": "mode"
             },
             {
-              "name": "command"
-            },
-            {
-              "name": "fileId"
+              "name": "query"
             }
           ]
         }
@@ -27,10 +24,11 @@
       "typeVersion": 1.1,
       "position": [
         -416,
-        0
+        16
       ],
       "id": "28c5fb9b-ea59-4f12-bda1-1628ad549659",
-      "name": "Start"
+      "name": "Start",
+      "disabled": true
     },
     {
       "parameters": {
@@ -46,7 +44,7 @@
                 },
                 "conditions": [
                   {
-                    "leftValue": "={{ $json.command }}",
+                    "leftValue": "={{ $json.query }}",
                     "rightValue": "/download",
                     "operator": {
                       "type": "string",
@@ -71,7 +69,7 @@
                 "conditions": [
                   {
                     "id": "0b038af5-832a-415d-b114-be851a308150",
-                    "leftValue": "={{ $json.command }}",
+                    "leftValue": "={{ $json.query }}",
                     "rightValue": "/start",
                     "operator": {
                       "type": "string",
@@ -83,33 +81,48 @@
                 "combinator": "and"
               },
               "renameOutput": true,
-              "outputKey": "Ignore"
+              "outputKey": "Start"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "1dfe5aa8-12d7-4d90-9b31-57101d6d185d",
+                    "leftValue": "={{ $json.query }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "empty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Done"
             }
           ]
         },
         "options": {
-          "fallbackOutput": "extra"
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Continue"
         }
       },
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
       "position": [
-        -208,
+        -192,
         -16
       ],
       "id": "400fa49e-3f29-4eba-b1d0-72be2319b4a9",
       "name": "Switch"
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [
-        208,
-        0
-      ],
-      "id": "05dbc32a-6583-4321-963c-21a3b4b55572",
-      "name": "No Operation, do nothing"
     },
     {
       "parameters": {
@@ -179,8 +192,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        0,
-        -80
+        16,
+        -176
       ],
       "id": "a0c5a918-456f-4ed6-afd4-40cacacb28dd",
       "name": "Call 'Send Bilan'"
@@ -197,7 +210,10 @@
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
-            "message": "Unknown command"
+            "message": "=Votre requête :\n{{ $('Start').item.json.query }}\n\nJe traite votre demande...",
+            "channel": "={{ $json.channel }}",
+            "sessionId": "={{ $json.sessionId }}",
+            "mode": "={{ $json.mode }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -250,14 +266,186 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        0,
-        80
+        16,
+        176
       ],
       "id": "8af9c379-0915-46b2-8619-b22fc1966b17",
       "name": "Call 'Send Message'"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "613a84f1-aa78-4ea0-bd8e-9bf419b4b6a7",
+              "name": "query",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        256,
+        32
+      ],
+      "id": "89f19e1d-5681-4e13-a05a-a6e7d64cecfa",
+      "name": "Done"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a15cdc31-2fdd-4fb0-8aea-4e4e4d39adbb",
+              "name": "query",
+              "value": "={{ $('Start').item.json.query }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        256,
+        176
+      ],
+      "id": "1cc9c55e-0b4b-4988-a6c9-c48a25247f0a",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9101588a-902a-4e9b-a757-d5f092e34cb2",
+              "name": "channel",
+              "value": "={{ $('Start').item.json.channel }}",
+              "type": "string"
+            },
+            {
+              "id": "b2aa5421-c891-4bb3-b127-09bb9526ea2d",
+              "name": "mode",
+              "value": "={{ $('Start').item.json.mode }}",
+              "type": "string"
+            },
+            {
+              "id": "4fe0ac36-d842-4f9d-b137-8ae59c538f7b",
+              "name": "sessionId",
+              "value": "={{ $('Start').item.json.sessionId }}",
+              "type": "string"
+            },
+            {
+              "id": "20ddfe55-25b9-482b-aac0-b1b917379571",
+              "name": "query",
+              "value": "={{ $json.query }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        512,
+        32
+      ],
+      "id": "190b2134-6ff1-4983-bd54-575c08196a90",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "adZfi8AJiWVXwWw4",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/adZfi8AJiWVXwWw4",
+          "cachedResultName": "Send Message"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "channel": "={{ $('Start').item.json.channel }}",
+            "sessionId": "={{ $('Start').item.json.sessionId }}",
+            "mode": "={{ $('Start').item.json.mode }}",
+            "message": "Bonjour,\nje suis votre interlocuteur privilégié au sein de notre Family office.\nAfin de vous apporter un conseil personnalisé nous devons dans un premier temps réaliser votre bilan patrimonial.\nDites-moi ce que vous souhaitez maintenant."
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "channel",
+              "displayName": "channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "mode",
+              "displayName": "mode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        16,
+        -48
+      ],
+      "id": "83dd4b23-bea5-4a55-9771-b1dd3079a3c9",
+      "name": "Call 'Send Message'1"
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "Start": [
+      {
+        "json": {
+          "channel": "telegram",
+          "sessionId": "7996903952",
+          "mode": "text",
+          "query": "/start"
+        }
+      }
+    ]
+  },
   "connections": {
     "Start": {
       "main": [
@@ -281,7 +469,14 @@
         ],
         [
           {
-            "node": "No Operation, do nothing",
+            "node": "Call 'Send Message'1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Done",
             "type": "main",
             "index": 0
           }
@@ -299,7 +494,7 @@
       "main": [
         [
           {
-            "node": "No Operation, do nothing",
+            "node": "Done",
             "type": "main",
             "index": 0
           }
@@ -310,7 +505,40 @@
       "main": [
         [
           {
-            "node": "No Operation, do nothing",
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Done": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Send Message'1": {
+      "main": [
+        [
+          {
+            "node": "Done",
             "type": "main",
             "index": 0
           }
@@ -327,7 +555,7 @@
     "callerPolicy": "workflowsFromSameOwner",
     "availableInMCP": false
   },
-  "versionId": "5dc3a564-81b9-41bd-8d18-305180f0fd72",
+  "versionId": "c79a71da-d70d-44b8-b55b-5689150617c4",
   "meta": {
     "instanceId": "75335dac70fa104cdfa4e5bcad8ca1a7f24e416f2c27d9320d1d92c6508398a5"
   },

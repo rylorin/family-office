@@ -1,7 +1,7 @@
 # Bilan Patrimonial - [NOM DU CLIENT]
 
 **Dernière mise à jour** : [DATE et HEURE]
-**Version du template** : 7.7
+**Version du template** : 7.8
 
 ---
 
@@ -28,6 +28,7 @@
 | 5.4 Immobilier d'Usage                        | ⬜ Non renseignée | —                    |
 | 5.5 Immobilier de Rendement                   | ⬜ Non renseignée | —                    |
 | 5.6 Actifs Professionnels                     | ⬜ Non renseignée | —                    |
+| 5.7 Actifs à recevoir / Héritage à venir      | ⬜ Non renseignée | —                    |
 | 6.1 Détail des Crédits Immobiliers            | ⬜ Non renseignée | —                    |
 | 6.2 Crédits à la Consommation & Autres Dettes | ⬜ Non renseignée | —                    |
 | 8. Objectifs Patrimoniaux                     | ⬜ Non renseignée | —                    |
@@ -59,9 +60,13 @@
 
 - **Union actuelle** : Célibataire / Marié / Pacsé / Concubinage / Divorcé / Veuf
 - **Date de l'union** : [À compléter]
-- **Régime matrimonial / Type de Pacs** : Légal / Communauté réduite aux acquêts / Séparation de biens / Participation aux acquêts / Communauté universelle / Indivision
+- **Régime matrimonial / Type de Pacs** : [À compléter]
 - **Contrat de mariage / Convention de Pacs** : Oui / Non (Si Oui, Date : [À compléter])
 - **Présence de clauses spécifiques** : Préciput / Attribution intégrale / Autre (Préciser : [À compléter])
+
+> Il faut obtenir la situation matrimoniale (`Union actuelle`) et la date de l'union avant de demander le `Régime matrimonial / Type de Pacs`.  
+> Si le client est Marié ou Pacsé, il faut demander le `Régime matrimonial / Type de Pacs`. Le régime matrimonial est `Néant` pour tous les autres cas.  
+> **Régime matrimonial / Type de Pacs** : Légal / Communauté réduite aux acquêts / Séparation de biens / Participation aux acquêts / Communauté universelle / Indivision / Néant
 
 ### 1.3 Enfants et Personnes à charge
 
@@ -327,6 +332,13 @@ _Focus : Sortie en capital/rente et déductibilité fiscale._
 
 > **Calcul** : Valeur Quote-part = Valeur Totale × % Détention.  
 > **CCA** : Indiquez le montant nominal que la société vous doit (généralement 100% de détention personnelle).
+
+### 5.7 Actifs à recevoir / Héritage à venir
+
+| Origine                     |   Montant estimé | Nature de l'actif | Date prévisible de perception | Commentaires                                                               |
+| :-------------------------- | ---------------: | :---------------- | :---------------------------- | :------------------------------------------------------------------------- |
+| [À compléter]               |  [À compléter] € | [À compléter]     | À horizon indéterminé         | Net de droits, à intégrer dans toutes les futures analyses et simulations. |
+| **Total actifs à recevoir** | **[Calculer] €** |                   |                               |                                                                            |
 
 ---
 
