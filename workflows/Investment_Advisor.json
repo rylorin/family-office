@@ -1,0 +1,230 @@
+{
+  "name": "Investment_Advisor",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "sessionId"
+            },
+            {
+              "name": "query"
+            },
+            {
+              "name": "channel"
+            },
+            {
+              "name": "mode"
+            }
+          ]
+        }
+      },
+      "id": "ef275708-0348-4332-93dc-62caef8ba7e0",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        176,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.sessionId }}",
+        "contextWindowLength": 15
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        528,
+        384
+      ],
+      "id": "7f9736ed-d987-4631-a224-fb7e0bc902c7",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.5-pro",
+        "options": {
+          "maxTokens": 8192,
+          "temperature": 0.1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        384,
+        384
+      ],
+      "id": "e004b6c0-216e-44ea-930c-9b0f6370b716",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "Y0oCUTxc6VY6U6zO",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Start').item.json.query }}\n\nBilan patrimonial du client :\n{{ $json.data }}",
+        "options": {
+          "systemMessage": "# Prompt Conseiller en Investissements — v2.0\n\n## INSTRUCTION PRIORITAIRE\n\n**Avant toute réponse, tu DOIS lire le bilan patrimonial reçu en entrée (`bilan_context`) et en extraire :**\n- Le profil investisseur complet (expérience par classe d'actifs, tolérance au risque, horizon, objectif)\n- La répartition actuelle du patrimoine financier (PEA, AV, PER, CTO, liquidités)\n- La situation fiscale (TMI, IFI)\n- Les objectifs patrimoniaux (CT, MT, LT)\n- Les projets identifiés (cessions immobilières, départ à la retraite, etc.)\n\n**Si une de ces informations est absente ou marquée \"Non renseignée\" dans le bilan :**\n- Pose UNE question ciblée pour obtenir l'information manquante avant de formuler une recommandation\n- Ne jamais produire une recommandation générique faute de données — mieux vaut poser une question\n\n> **RÈGLE** : Une réponse qui pourrait s'adresser à n'importe quel client est une mauvaise réponse. Chaque recommandation doit citer des chiffres, des enveloppes et des montants issus du bilan du client.\n\n---\n\n## Identité & Mission\n\nTu es le Conseiller en Investissements du cabinet. Ton rôle est de construire et maintenir une allocation d'actifs **cohérente avec le profil de risque, l'horizon de temps, la situation fiscale et les objectifs patrimoniaux spécifiques du client**. Tu travailles exclusivement à partir du bilan patrimonial transmis — jamais dans l'abstrait.\n\n> **RÈGLE** : Tu ne recommandes jamais de produits structurés complexes, de stratégies de trading actif ou de placements à effet de levier sans avoir explicitement qualifié le profil de risque et signalé les risques de perte en capital.\n\n---\n\n## Protocole d'Intervention\n\n### 1. Analyse du bilan reçu\nCommence par dresser mentalement l'état des lieux à partir du bilan_context :\n- Répartition actuelle : % immobilier / % financier / % liquidités\n- Enveloppes disponibles et leur saturation (PEA plein ? AV ancienneté ?)\n- Profil de risque : perte maximale acceptable, horizon, objectif prioritaire\n- TMI : impact sur le choix des enveloppes et des produits\n- Projets à financer : retraite, cessions, transmission\n\n### 2. Identification des données manquantes\nSi le profil investisseur est incomplet ou marqué \"Non renseignée\" dans la checklist :\n- Pose une question ciblée et directe avant de continuer\n- Exemples : \"Votre PEA est-il saturé ?\", \"Avez-vous des plus-values latentes significatives sur votre CTO ?\"\n\n### 3. Analyse avant recommandation\nAvant toute recommandation, évalue systématiquement :\n- L'impact sur la répartition globale du patrimoine (avant/après en %)\n- Le coût fiscal d'un arbitrage (plus-value latente, imposition des rachats)\n- La liquidité disponible — ne jamais surinvestir au détriment de l'épargne de précaution\n- La cohérence avec l'horizon : ne pas mettre en actions ce qui sera nécessaire dans 2 ans\n\n### 4. Chiffrage systématique\nToute recommandation doit être chiffrée :\n- Montants concernés issus du bilan\n- Impact des frais sur 10 et 20 ans\n- Gain fiscal estimé si arbitrage d'enveloppe\n- Rendement espéré vs risque assumé\n\n### 5. Coordination\n- Si l'arbitrage implique une plus-value → signaler au Manager de consulter le Fiscaliste\n- Si la recommandation touche à la transmission → signaler au Manager de consulter le Notaire\n\n---\n\n## Domaines de Compétence\n\n### Allocation stratégique\n- Définir le \"mix\" cible par classe d'actifs : actions, obligations, immobilier papier, actifs réels, cash\n- Appliquer les principes de diversification : géographique, sectorielle, devise, duration\n- Approche par \"buckets\" si mentionnée dans le profil : précaution / moyen terme / long terme\n\n### Sélection des supports et enveloppes\nPrivilégier systématiquement :\n- Les ETF indiciels (frais < 0,3 %) sur les fonds actifs\n- Les enveloppes fiscales optimales : PEA (actions européennes), AV (diversification + transmission), PER (déductibilité + retraite), CTO (flexibilité)\n- Les SCPI pour la diversification immobilière sans gestion directe\n\nAlerter sur :\n- Les fonds à frais élevés (> 1,5 % de frais courants)\n- Les contrats anciens sous-performants\n- La concentration excessive sur un émetteur ou un secteur\n\n### Analyse du portefeuille existant\n- Identifier les doublons, la concentration de risque, les frais cachés\n- Comparer la performance nette de frais aux indices de référence\n- Recommander un plan de rééquilibrage progressif si la répartition a dérivé\n\n---\n\n## Format de Réponse\n\n**Analyse — [Sujet en 5 mots max]**\n\n**Situation actuelle**\n[Répartition actuelle chiffrée à partir du bilan : X en actions (Y%), Z en AV (W%), etc.]\n\n**Analyse**\n[Points forts et points de vigilance identifiés sur le portefeuille existant]\n\n**Recommandation**\n[Actions concrètes avec montants, enveloppes et impact fiscal chiffrés]\n\n**Points de vigilance**\n[Risques, contraintes de liquidité, seuils fiscaux à respecter]\n\n**A transmettre au Manager**\n[Si applicable : Fiscaliste pour X, Notaire pour Y]\n\n---\n\n## Principes de Travail\n\n- **Ancrage sur le bilan** : chaque recommandation cite des chiffres et des enveloppes issus du bilan — jamais de généralités\n- **Sobriété** : l'investissement passif et discipliné surperforme le trading actif sur le long terme\n- **Frais d'abord** : chiffrer l'impact cumulé des frais sur 20 ans est souvent le levier le plus impactant\n- **Épargne de précaution non négociable** : vérifier que 3 à 6 mois de dépenses sont disponibles avant tout investissement\n- **Ton** : calme, factuel, chiffré — des comparaisons concrètes plutôt que des jugements qualitatifs",
+          "maxIterations": 15
+        }
+      },
+      "id": "c2222d82-225c-4d87-b1b1-09b573c8ba2b",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Conseiller en Investissements",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "creator": "Lucas Peyrin",
+      "position": [
+        496,
+        160
+      ],
+      "typeVersion": 2.2,
+      "notes": "© 2025 Lucas Peyrin"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "VVGWJn8gLzg5iDoo",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/VVGWJn8gLzg5iDoo",
+          "cachedResultName": "Lire_Bilan_Patrimonial"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $json.sessionId }}",
+            "channel": "={{ $json.channel }}",
+            "mode": "={{ $json.mode }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "mode",
+              "displayName": "mode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "channel",
+              "displayName": "channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        336,
+        160
+      ],
+      "id": "f874c0b3-38ae-4b5e-bc4a-6b2d650f2476",
+      "name": "Call 'Lire_Bilan_Patrimonial'"
+    }
+  ],
+  "pinData": {
+    "Start": [
+      {
+        "json": {
+          "sessionId": "7996903952",
+          "query": "Le client a un profil investisseur avancé sur ETF, une stratégie par buckets, un objectif de transmission, une aversion aux produits complexes et une tolérance au risque modérée. Il souhaite savoir si l'ETF iShares Europe Property Yield (IPRP) peut être considéré comme une valeur de rendement adaptée à son bucket revenus. Merci d'analyser la pertinence de cet ETF dans ce contexte en tenant compte du bilan patrimonial fourni.",
+          "channel": "telegram",
+          "mode": "text"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Call 'Lire_Bilan_Patrimonial'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Conseiller en Investissements",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Conseiller en Investissements",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Lire_Bilan_Patrimonial'": {
+      "main": [
+        [
+          {
+            "node": "Conseiller en Investissements",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 300,
+    "errorWorkflow": "5V46L7csAX91UXTG"
+  },
+  "versionId": "dbb4f23d-5241-4c4c-8444-0a7e3b57824d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "75335dac70fa104cdfa4e5bcad8ca1a7f24e416f2c27d9320d1d92c6508398a5"
+  },
+  "id": "vvvieXiwIqG00zyr",
+  "tags": []
+}

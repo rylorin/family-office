@@ -1,0 +1,46 @@
+version: "3.1"
+
+services:
+  mariadb:
+    image: mariadb:12.2.2-ubi10
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    volumes:
+      - n8n_db:/var/lib/mysql
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    restart: always
+    ports:
+      - 5678:5678
+    environment:
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_HOST=${SUBDOMAIN}.${DOMAIN_NAME}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - N8N_RUNNERS_ENABLED=true
+      - NODE_ENV=production
+      - WEBHOOK_URL=https://${SUBDOMAIN}.${DOMAIN_NAME}/
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE}
+      - TZ=${GENERIC_TIMEZONE}
+      - N8N_SECURE_COOKIE=false
+      - DB_TYPE=sqlite
+      - DB_MYSQLDB_DATABASE=${MYSQL_DATABASE}
+      - DB_MYSQLDB_HOST=${MYSQL_HOST}
+      - DB_MYSQLDB_PORT=3706
+      - DB_MYSQLDB_USER=${MYSQL_USER}
+      - DB_MYSQLDB_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - n8n_data:/home/node/.n8n
+    #      - ./local-files:/files
+    networks:
+      - default
+      - system_dmz_network
+
+networks:
+  default:
+  system_dmz_network:
+    external: true
+
+volumes:
+  n8n_data:
+  n8n_db:
