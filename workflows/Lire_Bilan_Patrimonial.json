@@ -1,0 +1,342 @@
+{
+  "name": "Lire_Bilan_Patrimonial",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "sessionId"
+            },
+            {
+              "name": "mode"
+            },
+            {
+              "name": "channel"
+            }
+          ]
+        }
+      },
+      "id": "3e9b0025-1897-4e0d-9677-c0490edc6737",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        304,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://www.googleapis.com/drive/v3/files/{{ $json.fileId }}?alt=media",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        752,
+        528
+      ],
+      "id": "259ef19a-25e7-4267-844c-25ee3892908a",
+      "name": "HTTP Request",
+      "alwaysOutputData": true,
+      "executeOnce": false,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "4YnA7yrrAHy91dF0",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "adZfi8AJiWVXwWw4",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/adZfi8AJiWVXwWw4",
+          "cachedResultName": "Send Message"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message": "={{ $json.error.message }}",
+            "sessionId": "={{ $('Start').item.json.sessionId }}",
+            "channel": "={{ $('Start').item.json.channel }}",
+            "mode": "={{ $('Start').item.json.mode }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "channel",
+              "displayName": "channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "mode",
+              "displayName": "mode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        976,
+        624
+      ],
+      "id": "68e12868-ecf6-47f3-b94e-0755d61b5bfe",
+      "name": "Call 'Send Message'"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        528
+      ],
+      "id": "bd7aec5a-86d2-4c59-a169-c7966438f8c1",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7188c4e4-1c1f-4110-a043-bd4b89b893ac",
+              "name": "channel",
+              "value": "={{ $('Start').item.json.channel }}",
+              "type": "string"
+            },
+            {
+              "id": "5b871fef-4ff3-439f-a31b-a5c56a6ee492",
+              "name": "mode",
+              "value": "={{ $('Start').item.json.mode }}",
+              "type": "string"
+            },
+            {
+              "id": "986ffb10-3d5e-4960-886f-2d348cfcbdf9",
+              "name": "sessionId",
+              "value": "={{ $('Start').item.json.sessionId }}",
+              "type": "string"
+            },
+            {
+              "id": "be56f847-fc02-40e0-81aa-2a7bdf69f12c",
+              "name": "data",
+              "value": "={{ $json.data }}",
+              "type": "string"
+            },
+            {
+              "id": "4917912e-a1ec-47a3-a621-81666cc276e3",
+              "name": "fileId",
+              "value": "={{ $('Get_Bilan_Id').item.json.fileId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        976,
+        432
+      ],
+      "id": "c6b228be-377d-456b-a857-efc899ede4a8",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "5VQuw5pCz46ezUmh",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/5VQuw5pCz46ezUmh",
+          "cachedResultName": "Get_Bilan_Id"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "mode": "={{ $json.mode }}",
+            "channel": "={{ $json.channel }}",
+            "sessionId": "={{ $json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "mode",
+              "displayName": "mode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "channel",
+              "displayName": "channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        528,
+        528
+      ],
+      "id": "4d34e002-2096-4589-b0cd-da33a904831f",
+      "name": "Get_Bilan_Id"
+    }
+  ],
+  "pinData": {
+    "Start": [
+      {
+        "json": {
+          "sessionId": "675075831",
+          "mode": "text",
+          "channel": "telegram"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Get_Bilan_Id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call 'Send Message'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Send Message'": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get_Bilan_Id": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 10,
+    "errorWorkflow": "5V46L7csAX91UXTG"
+  },
+  "versionId": "95fe5acd-aa0a-49b1-b845-30067fd3ecac",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "75335dac70fa104cdfa4e5bcad8ca1a7f24e416f2c27d9320d1d92c6508398a5"
+  },
+  "id": "VVGWJn8gLzg5iDoo",
+  "tags": []
+}

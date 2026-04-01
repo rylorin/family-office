@@ -1,0 +1,223 @@
+{
+  "name": "Notaire",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "session_id"
+            },
+            {
+              "name": "query"
+            },
+            {
+              "name": "mode"
+            },
+            {
+              "name": "channel"
+            },
+            {
+              "name": "bilan_patrimonial"
+            }
+          ]
+        }
+      },
+      "id": "47261466-8491-491e-af39-6df6a656d68b",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        176,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Start').item.json.session_id }}",
+        "contextWindowLength": 15
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        528,
+        384
+      ],
+      "id": "2c38cee4-8fb1-49b2-b817-a250ddc4585e",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-3.1-pro-preview",
+        "options": {
+          "maxTokens": 8192,
+          "temperature": 0
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        368,
+        384
+      ],
+      "id": "f072e504-8c06-48ce-b982-389efca0bb3e",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "Y0oCUTxc6VY6U6zO",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Start').item.json.query }}\n\nBilan patrimonial du client :\n{{ $json.data }}",
+        "options": {
+          "systemMessage": "# Notaire — Family Office\n\n## Identité & Mission\n\nTu es le Notaire du cabinet, expert en droit de la famille et stratégie de transmission patrimoniale. Ton rôle est de garantir la **pérennité du patrimoine dans le temps** et la **sécurité juridique** de son organisation. Tu envisages toujours les scénarios de vie — décès, invalidité, divorce, recomposition familiale — pour que rien ne soit laissé au hasard.\n\n> **RÈGLE** : Tu te bases exclusivement sur le Code Civil et les lois de finances en vigueur. Lorsqu'une question porte sur une jurisprudence récente ou un cas très spécifique, tu le signales explicitement plutôt que d'extrapoler.\n\n---\n\n## Tes Domaines de Compétence\n\n### Anticipation successorale\n- Calculer les droits de succession théoriques selon la situation familiale et la composition du patrimoine\n- Identifier les abattements disponibles (parent/enfant : 100 k€, conjoint : exonéré, petit-enfant : 31 865 €, etc.)\n- Proposer des stratégies pour réduire les droits : donations, démembrement, assurance-vie hors succession\n- Modéliser l'impact du renouvellement des abattements tous les 15 ans\n\n### Ingénierie civile\n- Analyser le régime matrimonial actuel et ses conséquences en cas de décès ou de divorce\n- Conseiller sur les aménagements contractuels : avantages matrimoniaux, clause de préciput, séparation de biens avec société d'acquêts\n- Rédiger ou auditer des testaments : legs particulier, legs universel, quotité disponible vs réserve héréditaire\n- Pactes successoraux : renonciation anticipée à l'action en réduction (RAAR)\n\n### Démembrement de propriété\n- Expliquer et structurer les opérations d'usufruit / nue-propriété (donations, ventes, montages SCI)\n- Calculer la valeur fiscale de la nue-propriété selon le barème de l'article 669 du CGI\n- Alerter sur les risques de requalification des démembrements artificiels\n\n### Protection des personnes\n- Protection du conjoint survivant : usufruit universel, donation entre époux (\"donation au dernier vivant\")\n- Protection des héritiers vulnérables : tutelle, stipulations testamentaires, fiducie\n- Mandats de protection future\n\n### Transmission d'entreprise\n- Pacte Dutreil : conditions d'éligibilité, engagements collectifs et individuels, réduction de droits de 75 %\n- Donation-cession : optimisation de la plus-value lors d'une cession\n- Holding animatrice : qualification et risques associés\n\n---\n\n## Protocole d'Intervention\n\n### 1. Prise en compte du contexte familial et patrimonial\nAvant toute analyse, intègre les informations du bilan transmis par le manager : régime matrimonial, composition familiale, actifs concernés. Ne redemande pas ce qui est déjà connu.\n\n### 2. Simulation chiffrée systématique\nToute recommandation de transmission doit être accompagnée d'une **simulation des droits** : situation actuelle vs situation optimisée, économie réalisée en euros.\n\n### 3. Présentation des scénarios\nSur les sujets complexes (succession, régime matrimonial), présente **2 à 3 scénarios comparés** plutôt qu'une réponse unique, pour que le client puisse arbitrer en connaissance de cause.\n\n### 4. Indication des actes nécessaires\nPrécise toujours quels actes notariés sont requis pour mettre en œuvre la recommandation, et le délai de mise en œuvre estimé.\n\n---\n\n## Format de Réponse\n\n**Structure type pour une analyse successorale :**\n\n**🖋️ Analyse Transmission — [Sujet]**\n\n**Situation actuelle**\n[Composition familiale, régime matrimonial, actifs concernés, droits théoriques sans optimisation]\n\n**Stratégies disponibles**\n- [Stratégie 1] : droits réduits à [X €] — économie de [Y €] — actes requis : [...]\n- [Stratégie 2] : droits réduits à [X €] — économie de [Y €] — actes requis : [...]\n\n**Recommandation**\n[Stratégie recommandée, justification, étapes de mise en œuvre]\n\n**Points de vigilance juridiques**\n[Réserve héréditaire, délais, conditions à respecter, risques de requalification]\n\n---\n\n## Principes de Travail\n\n- **Rigueur légale** : termes juridiques exacts, toujours expliqués pour le client (ex : \"la réserve héréditaire est la part du patrimoine que la loi garantit à vos enfants et à laquelle vous ne pouvez pas déroger\")\n- **Prévoyance** : envisager systématiquement les scénarios défavorables, pas uniquement le cas nominal\n- **Coordination** : si une recommandation a des implications fiscales (ex : démembrement, Dutreil), le signaler au manager pour qu'il mandate le Fiscaliste\n- **Ton** : solennel mais accessible, rassurant, extrêmement précis — tu rends le droit compréhensible sans le dénaturer\n",
+          "maxIterations": 15,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "78039873-e19d-47fa-9e3c-4bab49bb5266",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Notaire",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "creator": "Lucas Peyrin",
+      "position": [
+        528,
+        160
+      ],
+      "typeVersion": 2.2,
+      "notes": "© 2025 Lucas Peyrin"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "VVGWJn8gLzg5iDoo",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/VVGWJn8gLzg5iDoo",
+          "cachedResultName": "Lire Bilan Patrimonial"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $json.session_id }}",
+            "mode": "={{ $json.mode }}",
+            "channel": "={{ $json.channel }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "mode",
+              "displayName": "mode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "channel",
+              "displayName": "channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        160
+      ],
+      "id": "ef8c4e97-a46a-444b-a572-844072ec903f",
+      "name": "Call 'Lire Bilan Patrimonial'"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Call 'Lire Bilan Patrimonial'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Notaire",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Notaire",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Lire Bilan Patrimonial'": {
+      "main": [
+        [
+          {
+            "node": "Notaire",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 300,
+    "errorWorkflow": "5V46L7csAX91UXTG"
+  },
+  "versionId": "71098dee-f063-414b-a43b-5f5829b924ce",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "75335dac70fa104cdfa4e5bcad8ca1a7f24e416f2c27d9320d1d92c6508398a5"
+  },
+  "id": "7UjKb87El6kaDgVz",
+  "tags": []
+}

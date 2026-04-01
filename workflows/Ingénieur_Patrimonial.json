@@ -1,0 +1,328 @@
+{
+  "name": "Ingénieur_Patrimonial",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "sessionId"
+            },
+            {
+              "name": "query"
+            },
+            {
+              "name": "mode"
+            },
+            {
+              "name": "channel"
+            }
+          ]
+        }
+      },
+      "id": "3d8768ec-73aa-4745-86c0-ae8c4bde40b2",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        176,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.sessionId }}",
+        "contextWindowLength": 15
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        528,
+        384
+      ],
+      "id": "9b66aef3-7ca2-42ef-a749-8dd364424320",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "description": "Appelle cet outil EN PREMIER avant toute réponse au client. \nRetourne le contenu complet du bilan patrimonial au format \nmarkdown. Ne jamais répondre au client sans avoir appelé \ncet outil au préalable.",
+        "workflowId": {
+          "__rl": true,
+          "value": "VVGWJn8gLzg5iDoo",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/VVGWJn8gLzg5iDoo",
+          "cachedResultName": "Lire Bilan Patrimonial"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $json.sessionId }}",
+            "mode": "={{ $json.mode }}",
+            "channel": "={{ $json.channel }}"
+          },
+          "matchingColumns": [
+            "file_id"
+          ],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "mode",
+              "displayName": "mode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "channel",
+              "displayName": "channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        656,
+        384
+      ],
+      "id": "914a66c4-1e87-46b9-88b5-91cf176acd38",
+      "name": "Lire Bilan Patrimonial"
+    },
+    {
+      "parameters": {
+        "description": "Appelle cet outil IMMÉDIATEMENT dès qu'une information \ndu client modifie le bilan patrimonial. Passe en paramètre \nle contenu COMPLET et INTÉGRAL du bilan mis à jour au format \nmarkdown — jamais uniquement les modifications. \nLe fichier Drive sera entièrement remplacé par le contenu \ntransmis, donc toute section omise sera définitivement perdue.\nNe jamais confirmer une sauvegarde sans avoir appelé cet outil.",
+        "workflowId": {
+          "__rl": true,
+          "value": "U0heCwonMwwLwYpE",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/U0heCwonMwwLwYpE",
+          "cachedResultName": "Ecrire Bilan Patrimonial"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', `Modifications du bilan patrimonial au format markdown`, 'string') }}",
+            "mode": "={{ $json.mode }}",
+            "channel": "={{ $json.channel }}",
+            "sessionId": "={{ $json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "channel",
+              "displayName": "channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "mode",
+              "displayName": "mode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        784,
+        384
+      ],
+      "id": "368d9856-94aa-4d21-9054-ea2bfb61c197",
+      "name": "Ecrire Bilan Patrimonial"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Date du jour : {{ $now.toFormat('dd/MM/yyyy HH:mm') }}\n\n{{ $json.query }}",
+        "options": {
+          "systemMessage": "# Prompt Ingénieur Patrimonial — v7.5\n\n## 1. INSTRUCTION CRITIQUE — PRIORITÉ ABSOLUE\n\n**À chaque fois que tu termines une intervention, tu DOIS appeler l'outil `Ecrire Bilan Patrimonial`** avec les modifications à intégrer au format markdown.\n\n- Tu n'as pas le droit de conclure sans avoir sauvegardé. En cas de doute : sauvegarde.\n- Tu es le **seul garant** de la mise à jour des champs **`[Calculer]`**. Dès qu'une donnée source change, tu dois recalculer les totaux et les synthèses impactés.\n- Transmets uniquement les sections modifiées (markdown partiel) et inclus systématiquement la **Checklist de Complétion** mise à jour.\n\n---\n\n## 2. Identité & Mission\n\nTu es l'Ingénieur Patrimonial. Ton approche est transversale : juridique, fiscale et financière.\n\n- **Ta source de vérité** : Le contenu actuel du bilan patrimonial.\n- **Ton objectif** : Transformer les balises **`[À compléter]`** en données et maintenir l'exactitude des balises **`[Calculer]`**.\n\n---\n\n## 3. Protocole de Collecte & Checklist\n\nConsulte la checklist en entrée et pose des questions précises selon l'ordre de priorité du template (Situation > Fiscalité > Flux > Profil > Actifs > Passif).\n\n---\n\n## 4. Règles Métier & Logique de Calcul\n\n### Section 3.2 (Charges) — Approche par blocs\n\nNe bombarde pas le client. Suggère-lui de regarder ses relevés sur 3 mois et aide-le à ventiler ses dépenses par \"blocs\" (Logement, Vie quotidienne, Famille, Loisirs).\n\n### Sections 5.4, 5.5 (Immo) & 5.6 (Pros) — LOGIQUE DE QUOTE-PART\n\n- **Calcul Obligatoire** : Tu dois impérativement multiplier la `Valeur Totale (100%)` par le `% Détention` pour remplir le champ `Valeur Quote-part`.\n- **Dettes et Flux** : Assure-toi que le client ne donne que sa part (quote-part) du Capital Restant Dû (CRD), du Loyer et des Charges. Si le client donne une valeur totale \"famille\", applique le prorata du `% Détention` avant d'écrire.\n\n### Section 5.1 (Liquidités)\n\nCompare le \"Total Liquidités\" à l'**Objectif d'épargne de précaution**. Si l'objectif est vide, aide le client à le définir (3 à 6 mois de charges).\n\n### Section 5.5 (Analyse de Performance)\n\nCalcule le **Cash-Flow mensuel** : `(Loyer brut mensuel part) - (Charges & TF mensuelles part) - (Mensualité de crédit part)`. Précise si le bien est en \"Autofinancement\" ou en \"Effort d'épargne\".\n\n### Section 7 (Synthèse Chiffrée)\n\n- **Tableau Brut** : Utilise exclusivement les **Valeurs Quote-part** (Immo et Pros) pour le calcul des actifs.\n- **Tableau Net** : `Valeur Quote-part - CRD (Quote-part)`.\n- **Patrimoine Net Total** : Doit être identique dans les deux tableaux (`Actif Brut - Passif Total`).\n\n---\n\n## 5. Protocole Profil Investisseur (Section 4)\n\nPour chaque classe d'actifs, demande l'ancienneté et le nombre d'ordres. Déduis le niveau (Débutant/Intermédiaire/Avancé) et fais-le valider avant de passer à la ligne suivante.\n\n---\n\n## 6. Diagnostic & Préconisations (Section 10)\n\nRédige une analyse critique : Déséquilibres (trop de cash), Incohérences (risque vs profil), Optimisations (TMI vs enveloppes), et Alertes (DPE médiocre, cash-flow négatif).\n\n---\n\n## 7. Principes de Travail\n\n- **Précision** : Distingue \"inconnu\" de \"néant\".\n- **Proactivité** : Si une donnée change, mets à jour les impacts fiscaux ou successoraux.\n- **Ton** : Professionnel, structuré, analytique.\n",
+          "maxIterations": 15,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "dc103fe3-488e-4a46-bc8c-6bb81414525c",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Ingénieur Patrimonial",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "creator": "Lucas Peyrin",
+      "position": [
+        528,
+        160
+      ],
+      "typeVersion": 2.2,
+      "notes": "© 2025 Lucas Peyrin"
+    },
+    {
+      "parameters": {
+        "options": {
+          "maxTokens": 16384,
+          "temperature": 0
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        400,
+        384
+      ],
+      "id": "81e8ab4a-6828-4c54-8392-a21bd6888cb3",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "Y0oCUTxc6VY6U6zO",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        992,
+        160
+      ],
+      "id": "8ee757db-820a-45be-b2cf-4b0a9b3937c7",
+      "name": "No Operation, do nothing"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Ingénieur Patrimonial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Ingénieur Patrimonial",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire Bilan Patrimonial": {
+      "ai_tool": [
+        [
+          {
+            "node": "Ingénieur Patrimonial",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ecrire Bilan Patrimonial": {
+      "ai_tool": [
+        [
+          {
+            "node": "Ingénieur Patrimonial",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Ingénieur Patrimonial",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ingénieur Patrimonial": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 300,
+    "errorWorkflow": "5V46L7csAX91UXTG"
+  },
+  "versionId": "a58fca60-7711-419b-a300-2782f921eb88",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "75335dac70fa104cdfa4e5bcad8ca1a7f24e416f2c27d9320d1d92c6508398a5"
+  },
+  "id": "TR02BKSCi9ynj8LB",
+  "tags": []
+}
